@@ -29,7 +29,7 @@ For this portfolio, I will be looking at the evolution of the Rock genre. Specif
 
 ## Early Rock 'n Roll days (50s, 60s)
 For these visualizations, I used the Spotify playlists as specified before in the introduction. Here we hope to see some of the hypotheses that have been stated earlier.
-```{r}
+```{r echo=FALSE, message=FALSE}
 library(tidyverse)
 library(spotifyr)
 spotifyr::get_spotify_access_token() 
@@ -83,3 +83,4 @@ ggplot(
   facet_wrap(~era) 
 ```
 A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly. 
+
