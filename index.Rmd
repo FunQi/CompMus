@@ -5,26 +5,81 @@ date: "10-2-2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## CompMus Portfolio
+### Introduction (Week 1)
+Course portfolio for Computational Musicology
+
+For this portfolio, I will be looking at the evolution of the Rock genre. Specifically, from Rock 'n Roll into Rock music and eventually into more alternative Rock subgenres,
+ like Grunge, Metal and alt Rock. For the Rock 'n Roll songs, the Spotify playlist "50's and 60's Rock n Roll" playlist has been chosen to process. There are 74 songs within 
+ the playlist and includes classic Rock 'n Roll artists, like Elvis Presley, Chuck Berry, Little Richard and much more. The playlist for the Rock music will be the Rock Classics 
+ playlist from Spotify itself. This playlist includes 145 songs of classic Rock songs and is very likely to be suited for this era of Rock music, because it contains a lot of 
+ different styles of Rock within that era. Finally, for the alternative Rock subgenres a playlist named "90s Grunge/Rock/Punk-pop" is used in combination with the "Old school
+ Metal" playlist with a total of 293 songs in both playlists. The playlists are used together, because the "90s Grunge/Rock/Punk-pop" playlist contains a lot of subgenres but 
+ doesn't contain a lot of Metal, which was definitely apparent in this era of Rock music. 
+
+ The decision to look at the evolution of Rock music came to me, because of my obsession with why people seem to know these classical Rock songs no matter the age of 
+ the person. Classic Rock music seems to be something almost everyone can enjoy, albeit not all the subgenres. Within the alternative Rock category, there are bands like 
+ The Offspring and Green Day, which are well known for their heavier "Punk" style Rock. Take for example "Basket Case" from Green Day, which has more than half a billion
+ streams. This is not even accounting for the amount of times the song is listened to in any other way. Next to this Punk style, the genre still contains bands like U2 as well. 
+ The style of U2 is completely different, but rooted from the same type of music. Rock.
+
+ All in all, I expect the loudness of Rock music in it's evolution to rise, this because of the fact that in later stages, the guitars became more distorted. Next to that, I expect 
+ that the valence, which measures the positivity of a song, will be lower in the alternative Rock category because of the fact that the songs are written in less of a "swing"
+ than the early Rock 'n Roll days.
+
+## Early Rock 'n Roll days (50s, 60s)
+For these visualizations, I used the Spotify playlists as specified before in the introduction. Here we hope to see some of the hypotheses that have been stated earlier.
+```{r}
+library(tidyverse)
+library(spotifyr)
+spotifyr::get_spotify_access_token() 
+
+RockNRoll <- get_playlist_audio_features("", "2ii0K7mNdB89XgcOCUM64t")
+RockClassics <- get_playlist_audio_features("", "37i9dQZF1DWXRqgorJj26U")
+RockSubGenres <- get_playlist_audio_features("", "5dZcUWhn9DP8oOWVQVYLq4")
+
+Rock <- bind_rows(
+  RockNRoll %>% mutate(era = "Rock 'n Roll (50s, 60s)"),
+  RockClassics %>% mutate(era = "Rock Classics (70s, 80s)"),
+  RockSubGenres %>% mutate(era = "Rock Subgenres (90s, 00s)")
+)
+
+RockMeans <- bind_rows(
+  RockNRoll %>% summarise(
+    mean_valence = mean(valence),
+    mean_danceability = mean(danceability),
+    mean_energy = mean(energy),
+    era = "Rock 'n Roll (50s, 60s)"
+  ),
+  RockClassics %>% summarise(
+    mean_valence = mean(valence),
+    mean_danceability = mean(danceability),
+    mean_energy = mean(energy),
+    era = "Rock Classics (70s, 80s)"
+  ),
+  RockSubGenres %>% summarise(
+    mean_valence = mean(valence),
+    mean_danceability = mean(danceability),
+    mean_energy = mean(energy),
+    era = "Rock Subgenres (90s, 00s)"
+  ),
+  )
+
+Rock %>%
+  mutate(
+    mode = ifelse(mode == 0, "Minor", "Major")
+  ) %>%
+ggplot(
+  aes(
+    x = valence,
+    y = danceability,
+    color = mode,
+    size = energy
+    )
+  ) +
+  geom_point(alpha=0.4) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(limits = c(0, 1)) +
+  facet_wrap(~era) 
 ```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly. 
