@@ -80,7 +80,12 @@ ggplot(
   geom_point(alpha=0.4) +
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(limits = c(0, 1)) +
-  facet_wrap(~era) 
+  facet_wrap(~era) +
+  theme(
+    legend.position = "bottom"
+  )
 ```
+
 A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly. 
+Next to these findings, it is also apparent in the plots that in the Rock 'n Roll period, the overall energy was lower than the energy of later tracks. This can be noted by the fact that the left plot seems less crowded. This effect is however magnified by the fact that the Rock 'n Roll playlist had less songs than the other plots.
 
