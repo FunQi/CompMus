@@ -2,11 +2,13 @@
 title: "This is my portfolio"
 author: "Qi Draaisma"
 date: "10-2-2021"
-output: html_document
+output: 
+  flexdashboard::flex_dashboard:
+    storyboard: true
 ---
 
-## CompMus Portfolio
-### Introduction (Week 1)
+
+### Introduction to my research on the evolution of Rock music
 Course portfolio for Computational Musicology
 
 For this portfolio, I will be looking at the evolution of the Rock genre. Specifically, from Rock 'n Roll into Rock music and eventually into more alternative Rock subgenres,
@@ -27,11 +29,14 @@ For this portfolio, I will be looking at the evolution of the Rock genre. Specif
  that the valence, which measures the positivity of a song, will be lower in the alternative Rock category because of the fact that the songs are written in less of a "swing"
  than the early Rock 'n Roll days.
 
-## Early Rock 'n Roll days (50s, 60s)
-For these visualizations, I used the Spotify playlists as specified before in the introduction. Here we hope to see some of the hypotheses that have been stated earlier.
+### Early Rock 'n Roll days (50s, 60s)
+
 ```{r echo=FALSE, message=FALSE}
 library(tidyverse)
 library(spotifyr)
+library(compmus)
+library(plotly)
+
 spotifyr::get_spotify_access_token() 
 
 RockNRoll <- get_playlist_audio_features("", "2ii0K7mNdB89XgcOCUM64t")
@@ -65,7 +70,7 @@ RockMeans <- bind_rows(
   ),
   )
 
-Rock %>%
+rollplot <- RockNRoll %>%
   mutate(
     mode = ifelse(mode == 0, "Minor", "Major")
   ) %>%
@@ -74,7 +79,102 @@ ggplot(
     x = valence,
     y = danceability,
     color = mode,
-    size = energy
+    size = energy,
+    label = track.name
+    )
+  ) +
+  geom_point(alpha=0.4) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(limits = c(0, 1)) +
+  theme(
+    legend.position = "bottom"
+  )
+
+ggplotly(rollplot)
+```
+
+***
+For these visualizations, I used the Spotify playlists as specified before in the introduction. Here we hope to see some of the hypotheses that have been stated earlier.
+
+A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly.
+
+Next to these findings, it is also apparent in the plots that in the Rock 'n Roll period, the overall energy was lower than the energy of later tracks. This can be noted by the fact that the left plot seems less crowded. This effect is however magnified by the fact that the Rock 'n Roll playlist had less songs than the other plots.
+
+
+### Rock Classics era (70s, 80s)
+
+``` {r}
+classicplot <- RockClassics %>%
+  mutate(
+    mode = ifelse(mode == 0, "Minor", "Major")
+  ) %>%
+ggplot(
+  aes(
+    x = valence,
+    y = danceability,
+    color = mode,
+    size = energy,
+    label = track.name
+    )
+  ) +
+  geom_point(alpha=0.4) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(limits = c(0, 1)) +
+  theme(
+    legend.position = "bottom"
+  )
+
+ggplotly(classicplot)
+```
+
+***
+Here I will explain what is seen in the plot :)
+
+### Rock Subgenres (90s, 00s)
+
+``` {r}
+subgplot <- RockSubGenres %>%
+  mutate(
+    mode = ifelse(mode == 0, "Minor", "Major")
+  ) %>%
+ggplot(
+  aes(
+    x = valence,
+    y = danceability,
+    color = mode,
+    size = energy,
+    label = track.name
+    )
+  ) +
+  geom_point(alpha=0.4) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(limits = c(0, 1)) +
+  theme(
+    legend.position = "bottom"
+  )
+
+ggplotly(subgplot)
+```
+
+***
+Here comes the explanation again!!!! (Just not yet)
+
+
+### Comparing all the different times in one big Rockplot
+
+
+``` {r}
+fullplot <- Rock %>%
+  mutate(
+    mode = ifelse(mode == 0, "Minor", "Major")
+  ) %>%
+ggplot(
+  aes(
+    x = valence,
+    y = danceability,
+    color = mode,
+    size = energy,
+    label = track.name
     )
   ) +
   geom_point(alpha=0.4) +
@@ -84,8 +184,10 @@ ggplot(
   theme(
     legend.position = "bottom"
   )
+
+ggplotly(fullplot)
+
 ```
 
-A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly. 
-Next to these findings, it is also apparent in the plots that in the Rock 'n Roll period, the overall energy was lower than the energy of later tracks. This can be noted by the fact that the left plot seems less crowded. This effect is however magnified by the fact that the Rock 'n Roll playlist had less songs than the other plots.
-
+*** 
+You know it... Here it comes... The anticipation is agonising... Placeholder!!!!!!
