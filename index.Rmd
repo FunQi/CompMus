@@ -7,6 +7,77 @@ output:
     storyboard: true
 ---
 
+``` {r echo=FALSE, message=FALSE}
+library(tidyverse)
+library(spotifyr)
+library(compmus)
+library(plotly)
+```
+
+### The saddest Rock 'n Roll track in the corpus
+
+#### Cepstogram
+
+``` {r}
+Crying <-
+  get_tidy_audio_analysis("6eLL7QTdMWdhhG4i3jHDR9") %>% # Change URI.
+  compmus_align(bars, segments) %>%                     # Change `bars`
+  select(bars) %>%                                      #   in all three
+  unnest(bars) %>%                                      #   of these lines.
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  )
+
+Crying %>%
+  compmus_gather_timbre() %>%
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = basis,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  scale_fill_viridis_c() +                              
+  theme_classic()
+```
+
+#### Self Similarity Matrix
+
+``` {r}
+Crying %>%
+  compmus_self_similarity(pitches, "cosine") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+```
+
+***
+In the two plots below, the biggest outlier of the corpus is represented with a cepstogram and a self similarity matrix (SSM) regarding pitches. The song is "Crying" by Roy Orbison. What can be extracted from both plots is that the song has a strong ending of some sort. In the cepstogram one sees a short rise in magnitude of the c02 vector, which means a certain aspect of the timbre is extra apparent at that moment. This is also seen within the SSM as two vertical and two horizontal lines, this means that near the end there is a bigger difference regarding the other parts of the song. When listening to the song, it becomes clear what this change is. Throughout the song, Orbison sings a sad song. However, in the end the singer reaches out for a strong high note. This is what causes the sudden change within the two plots.
 
 ### Introduction to my research on the evolution of Rock music
 Course portfolio for Computational Musicology
@@ -29,13 +100,9 @@ For this portfolio, I will be looking at the evolution of the Rock genre. Specif
  that the valence, which measures the positivity of a song, will be lower in the alternative Rock category because of the fact that the songs are written in less of a "swing"
  than the early Rock 'n Roll days.
 
-### Early Rock 'n Roll days (50s, 60s)
+### Analyzing the energy and mood of 50s, 60s Rock 'n Roll days. 
 
 ```{r echo=FALSE, message=FALSE}
-library(tidyverse)
-library(spotifyr)
-library(compmus)
-library(plotly)
 
 spotifyr::get_spotify_access_token() 
 
@@ -191,3 +258,6 @@ ggplotly(fullplot)
 
 *** 
 You know it... Here it comes... The anticipation is agonising... Placeholder!!!!!!
+
+
+
