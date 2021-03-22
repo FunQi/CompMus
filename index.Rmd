@@ -56,8 +56,281 @@ RockMeans <- bind_rows(
   )
 
 ```
-### Classifying songs from different Rock era's (NEW)
+Welcome to the Rock evolution
+==================
+Course portfolio for Computational Musicology
 
+For this portfolio, I will be looking at the evolution of the Rock genre. Specifically, from Rock 'n Roll into Rock music and eventually into more alternative Rock subgenres,
+ like Grunge, Metal and alt Rock. For the Rock 'n Roll songs, the Spotify playlist "50's and 60's Rock n Roll" playlist has been chosen to process. There are 74 songs within 
+ the playlist and includes classic Rock 'n Roll artists, like Elvis Presley, Chuck Berry, Little Richard and much more. The playlist for the Rock music will be the Rock Classics 
+ playlist from Spotify itself. This playlist includes 145 songs of classic Rock songs and is very likely to be suited for this era of Rock music, because it contains a lot of 
+ different styles of Rock within that era. Finally, for the alternative Rock subgenres a playlist named "90s Grunge/Rock/Punk-pop" is used in combination with the "Old school
+ Metal" playlist with a total of 293 songs in both playlists. The playlists are used together, because the "90s Grunge/Rock/Punk-pop" playlist contains a lot of subgenres but 
+ doesn't contain a lot of Metal, which was definitely apparent in this era of Rock music. 
+
+ The decision to look at the evolution of Rock music came to me, because of my obsession with why people seem to know these classical Rock songs no matter the age of 
+ the person. Classic Rock music seems to be something almost everyone can enjoy, albeit not all the subgenres. Within the alternative Rock category, there are bands like 
+ The Offspring and Green Day, which are well known for their heavier "Punk" style Rock. Take for example "Basket Case" from Green Day, which has more than half a billion
+ streams. This is not even accounting for the amount of times the song is listened to in any other way. Next to this Punk style, the genre still contains bands like U2 as well. 
+ The style of U2 is completely different, but rooted from the same type of music. Rock.
+
+ All in all, I expect the loudness of Rock music in it's evolution to rise, this because of the fact that in later stages, the guitars became more distorted. Next to that, I expect 
+ that the valence, which measures the positivity of a song, will be lower in the alternative Rock category because of the fact that the songs are written in less of a "swing"
+ than the early Rock 'n Roll days.
+
+The Rocking research {.storyboard}
+====================
+### Comparing all the different era's in one big Rockplot
+
+
+``` {r}
+fullplot <- Rock %>%
+  mutate(
+    mode = ifelse(mode == 0, "Minor", "Major")
+  ) %>%
+ggplot(
+  aes(
+    x = valence,
+    y = danceability,
+    color = mode,
+    size = energy,
+    label = track.name
+    )
+  ) +
+  geom_point(alpha=0.4) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(limits = c(0, 1)) +
+  facet_wrap(~era) +
+  theme(
+    legend.position = "bottom"
+  )
+
+ggplotly(fullplot)
+
+```
+
+*** 
+A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly.
+
+Next to these findings, it is also apparent in the plots that in the Rock 'n Roll period, the overall energy was lower than the energy of later tracks. This can be noted by the fact that the left plot seems less crowded. This effect is however magnified by the fact that the Rock 'n Roll playlist had less songs than the other plots.
+
+
+
+
+
+
+### Difference in Tempo, Duration and Loudness throughout the evolution
+
+``` {r}
+Erameans <- Rock %>%
+  group_by(era) %>%
+  summarise(mtemp = mean(tempo))
+
+Rock %>%
+  mutate(
+    sections =
+      map(
+        sections,                                    # sections or segments
+        summarise_at,
+        vars(tempo, loudness, duration),             # features of interest
+        list(section_mean = mean, section_sd = sd)   # aggregation functions
+      )
+  ) %>%
+  unnest(sections) %>%
+  ggplot(
+    aes(
+      x = tempo,
+      y = tempo_section_sd,
+      colour = era,
+      alpha = loudness
+    )
+  ) +
+  geom_point(aes(size = duration / 60)) +
+  geom_segment(aes(x = Erameans$mtemp[1], xend = Erameans$mtemp[1], y = 0, yend = 7, alpha = 0.2), color = "red") +
+  geom_segment(aes(x = Erameans$mtemp[2], xend = Erameans$mtemp[2], y = 0, yend = 7, alpha = 0.2), color = "green") +
+  geom_segment(aes(x = Erameans$mtemp[3], xend = Erameans$mtemp[3], y = 0, yend = 7, alpha = 0.2), color = "blue") +
+  annotate(geom="text", x=150, y=6.5, label="<- Mean Tempo") +
+  geom_rug() +
+  theme_minimal() +
+  ylim(0, 7) +
+  labs(
+    x = "Mean Tempo (bpm)",
+    y = "SD Tempo",
+    colour = "Genre",
+    size = "Duration (min)",
+    alpha = "Volume (dBFS)"
+  ) 
+```
+
+***
+There is a lot to discover in this plot so let's start from the beginning. For the plot the limit on the y-axis has been set to 7, which cuts off 14 songs that have a much higher Standard Deviation (SD) that the other songs.
+First of all, one can see the very distinct tempo means. The means of the Rock Classics and the Rock Subgenres are close to eachother, while the mean tempo of Rock 'n Roll is higher than the other era's. This could very well be because of the fact that Rock Classics and Rock Subgenres have more styles of rock than Rock 'n Roll.
+
+Next to that, one can see that the overall duration and loudness of the Rock 'n Roll era seems to be lower than the other era's. There are some songs withing te Rock Subgenres era that show similar features, but not as much as the Rock 'n Roll era.
+
+ONE QUESTION HERE:
+I have the problem that the stats of the plot are shown on the left, I am aware that this hinders the visibility of the plot. Does anyone know how to get rid of it?
+Next to that, if you see anything interesting in the plot, Please let me know :)
+
+
+ 
+### Come Fly With Me, Spotify's tempo enigma performed by Sinatra
+
+```{r}
+Fly <- get_tidy_audio_analysis("4hHbeIIKO5Y5uLyIEbY9Gn")
+```
+
+```{r}
+Fly %>%
+  tempogram(window_size = 2, hop_size = 4, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+***
+In this plot, we see the tempogram of the song "Come fly with me - remastered" by Frank Sinatra. This is one of the outliers in the tempo plot, which was seen before. The plot shows that Spotify clearly has a real hard time finding the right tempo of the song. In the tibble below, the tempo and the confidence Spotify has about that tempo. grouped by the different sections of the song.
+```{r}
+Fly[[12]][[1]] %>%
+  select(tempo, tempo_confidence)
+```
+
+Clearly, Spotify is not that confident about their tempo assessment. This could be because of the fact that it sounds like live music with little guidance from percussive elements. Also, this could be the reason for the fact that it is an outlier within the standard deviation of the tempo.
+
+
+
+
+### Checking out the keygrams in the different era's
+
+``` {r}
+circshift <- function(v, n) {
+  if (n == 0) v else c(tail(v, n), head(v, -n))
+}
+
+#      C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B
+major_chord <-
+  c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    0,    0)
+minor_chord <-
+  c(   1,    0,    0,    1,    0,    0,    0,    1,    0,    0,    0,    0)
+seventh_chord <-
+  c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    1,    0)
+
+major_key <-
+  c(6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88)
+minor_key <-
+  c(6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17)
+
+chord_templates <-
+  tribble(
+    ~name, ~template,
+    "Gb:7", circshift(seventh_chord, 6),
+    "Gb:maj", circshift(major_chord, 6),
+    "Bb:min", circshift(minor_chord, 10),
+    "Db:maj", circshift(major_chord, 1),
+    "F:min", circshift(minor_chord, 5),
+    "Ab:7", circshift(seventh_chord, 8),
+    "Ab:maj", circshift(major_chord, 8),
+    "C:min", circshift(minor_chord, 0),
+    "Eb:7", circshift(seventh_chord, 3),
+    "Eb:maj", circshift(major_chord, 3),
+    "G:min", circshift(minor_chord, 7),
+    "Bb:7", circshift(seventh_chord, 10),
+    "Bb:maj", circshift(major_chord, 10),
+    "D:min", circshift(minor_chord, 2),
+    "F:7", circshift(seventh_chord, 5),
+    "F:maj", circshift(major_chord, 5),
+    "A:min", circshift(minor_chord, 9),
+    "C:7", circshift(seventh_chord, 0),
+    "C:maj", circshift(major_chord, 0),
+    "E:min", circshift(minor_chord, 4),
+    "G:7", circshift(seventh_chord, 7),
+    "G:maj", circshift(major_chord, 7),
+    "B:min", circshift(minor_chord, 11),
+    "D:7", circshift(seventh_chord, 2),
+    "D:maj", circshift(major_chord, 2),
+    "F#:min", circshift(minor_chord, 6),
+    "A:7", circshift(seventh_chord, 9),
+    "A:maj", circshift(major_chord, 9),
+    "C#:min", circshift(minor_chord, 1),
+    "E:7", circshift(seventh_chord, 4),
+    "E:maj", circshift(major_chord, 4),
+    "G#:min", circshift(minor_chord, 8),
+    "B:7", circshift(seventh_chord, 11),
+    "B:maj", circshift(major_chord, 11),
+    "D#:min", circshift(minor_chord, 3)
+  )
+
+key_templates <-
+  tribble(
+    ~name, ~template,
+    "Gb:maj", circshift(major_key, 6),
+    "Bb:min", circshift(minor_key, 10),
+    "Db:maj", circshift(major_key, 1),
+    "F:min", circshift(minor_key, 5),
+    "Ab:maj", circshift(major_key, 8),
+    "C:min", circshift(minor_key, 0),
+    "Eb:maj", circshift(major_key, 3),
+    "G:min", circshift(minor_key, 7),
+    "Bb:maj", circshift(major_key, 10),
+    "D:min", circshift(minor_key, 2),
+    "F:maj", circshift(major_key, 5),
+    "A:min", circshift(minor_key, 9),
+    "C:maj", circshift(major_key, 0),
+    "E:min", circshift(minor_key, 4),
+    "G:maj", circshift(major_key, 7),
+    "B:min", circshift(minor_key, 11),
+    "D:maj", circshift(major_key, 2),
+    "F#:min", circshift(minor_key, 6),
+    "A:maj", circshift(major_key, 9),
+    "C#:min", circshift(minor_key, 1),
+    "E:maj", circshift(major_key, 4),
+    "G#:min", circshift(minor_key, 8),
+    "B:maj", circshift(major_key, 11),
+    "D#:min", circshift(minor_key, 3)
+  )
+```
+
+``` {r}
+library(grid)
+library(gridExtra)
+
+basket_case <-
+  get_tidy_audio_analysis("6L89mwZXSOwYl76YXfX13s") %>%
+  compmus_align(sections, segments) %>%
+  select(sections) %>%
+  unnest(sections) %>%
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      )
+  )
+
+basket_case %>% 
+  compmus_match_pitch_template(
+    key_templates,         # Change to chord_templates if descired
+    method = "cosine",  # Try different distance metrics
+    norm = "manhattan"     # Try different norms
+  ) %>%
+  ggplot(
+    aes(x = start + duration / 2, width = duration, y = name, fill = d)
+  ) +
+  geom_tile() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "")
+
+
+```
+
+***
+Here, we see a keygram of Basket Case by Green Day. It shows a pattern of the intro being in a different key than the rest of the song. This is not the case however. The song is written in Eb major, which is kind of strange, since the keygram says it is probably Bb min. The cause for this is still a bit cloudy in my eyes.
+
+
+### Classifying songs from different Rock era's (NEW)
 ```{r echo=FALSE, message=FALSE, results=FALSE, warnings=FALSE}
 library(tidymodels)
 library(ggdendro)
@@ -230,238 +503,71 @@ The other two plots show statistics about the classifier. It can be seen that th
 
 
 
-### Come Fly With Me, Spotify's tempo enigma performed by Sinatra
+### The saddest Rock 'n Roll track in the corpus
 
-```{r}
-Fly <- get_tidy_audio_analysis("4hHbeIIKO5Y5uLyIEbY9Gn")
-```
-
-```{r}
-Fly %>%
-  tempogram(window_size = 2, hop_size = 4, cyclic = FALSE) %>%
-  ggplot(aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-```
-
-***
-In this plot, we see the tempogram of the song "Come fly with me - remastered" by Frank Sinatra. This is one of the outliers in the tempo plot, which was seen before. The plot shows that Spotify clearly has a real hard time finding the right tempo of the song. In the tibble below, the tempo and the confidence Spotify has about that tempo. grouped by the different sections of the song.
-```{r}
-Fly[[12]][[1]] %>%
-  select(tempo, tempo_confidence)
-```
-
-Clearly, Spotify is not that confident about their tempo assessment. This could be because of the fact that it sounds like live music with little guidance from percussive elements. Also, this could be the reason for the fact that it is an outlier within the standard deviation of the tempo.
-
-
-
-
-### Checking out the keygrams in the different era's
 
 ``` {r}
-circshift <- function(v, n) {
-  if (n == 0) v else c(tail(v, n), head(v, -n))
-}
-
-#      C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B
-major_chord <-
-  c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    0,    0)
-minor_chord <-
-  c(   1,    0,    0,    1,    0,    0,    0,    1,    0,    0,    0,    0)
-seventh_chord <-
-  c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    1,    0)
-
-major_key <-
-  c(6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88)
-minor_key <-
-  c(6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17)
-
-chord_templates <-
-  tribble(
-    ~name, ~template,
-    "Gb:7", circshift(seventh_chord, 6),
-    "Gb:maj", circshift(major_chord, 6),
-    "Bb:min", circshift(minor_chord, 10),
-    "Db:maj", circshift(major_chord, 1),
-    "F:min", circshift(minor_chord, 5),
-    "Ab:7", circshift(seventh_chord, 8),
-    "Ab:maj", circshift(major_chord, 8),
-    "C:min", circshift(minor_chord, 0),
-    "Eb:7", circshift(seventh_chord, 3),
-    "Eb:maj", circshift(major_chord, 3),
-    "G:min", circshift(minor_chord, 7),
-    "Bb:7", circshift(seventh_chord, 10),
-    "Bb:maj", circshift(major_chord, 10),
-    "D:min", circshift(minor_chord, 2),
-    "F:7", circshift(seventh_chord, 5),
-    "F:maj", circshift(major_chord, 5),
-    "A:min", circshift(minor_chord, 9),
-    "C:7", circshift(seventh_chord, 0),
-    "C:maj", circshift(major_chord, 0),
-    "E:min", circshift(minor_chord, 4),
-    "G:7", circshift(seventh_chord, 7),
-    "G:maj", circshift(major_chord, 7),
-    "B:min", circshift(minor_chord, 11),
-    "D:7", circshift(seventh_chord, 2),
-    "D:maj", circshift(major_chord, 2),
-    "F#:min", circshift(minor_chord, 6),
-    "A:7", circshift(seventh_chord, 9),
-    "A:maj", circshift(major_chord, 9),
-    "C#:min", circshift(minor_chord, 1),
-    "E:7", circshift(seventh_chord, 4),
-    "E:maj", circshift(major_chord, 4),
-    "G#:min", circshift(minor_chord, 8),
-    "B:7", circshift(seventh_chord, 11),
-    "B:maj", circshift(major_chord, 11),
-    "D#:min", circshift(minor_chord, 3)
-  )
-
-key_templates <-
-  tribble(
-    ~name, ~template,
-    "Gb:maj", circshift(major_key, 6),
-    "Bb:min", circshift(minor_key, 10),
-    "Db:maj", circshift(major_key, 1),
-    "F:min", circshift(minor_key, 5),
-    "Ab:maj", circshift(major_key, 8),
-    "C:min", circshift(minor_key, 0),
-    "Eb:maj", circshift(major_key, 3),
-    "G:min", circshift(minor_key, 7),
-    "Bb:maj", circshift(major_key, 10),
-    "D:min", circshift(minor_key, 2),
-    "F:maj", circshift(major_key, 5),
-    "A:min", circshift(minor_key, 9),
-    "C:maj", circshift(major_key, 0),
-    "E:min", circshift(minor_key, 4),
-    "G:maj", circshift(major_key, 7),
-    "B:min", circshift(minor_key, 11),
-    "D:maj", circshift(major_key, 2),
-    "F#:min", circshift(minor_key, 6),
-    "A:maj", circshift(major_key, 9),
-    "C#:min", circshift(minor_key, 1),
-    "E:maj", circshift(major_key, 4),
-    "G#:min", circshift(minor_key, 8),
-    "B:maj", circshift(major_key, 11),
-    "D#:min", circshift(minor_key, 3)
-  )
-```
-
-``` {r}
-library(grid)
-library(gridExtra)
-
-basket_case <-
-  get_tidy_audio_analysis("6L89mwZXSOwYl76YXfX13s") %>%
-  compmus_align(sections, segments) %>%
-  select(sections) %>%
-  unnest(sections) %>%
+Crying <-
+  get_tidy_audio_analysis("6eLL7QTdMWdhhG4i3jHDR9") %>% # Change URI.
+  compmus_align(bars, segments) %>%                     # Change `bars`
+  select(bars) %>%                                      #   in all three
+  unnest(bars) %>%                                      #   of these lines.
   mutate(
     pitches =
       map(segments,
         compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
+        method = "rms", norm = "euclidean"              # Change summary & norm.
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              # Change summary & norm.
       )
   )
 
-basket_case %>% 
-  compmus_match_pitch_template(
-    key_templates,         # Change to chord_templates if descired
-    method = "cosine",  # Try different distance metrics
-    norm = "manhattan"     # Try different norms
-  ) %>%
-  ggplot(
-    aes(x = start + duration / 2, width = duration, y = name, fill = d)
-  ) +
-  geom_tile() +
-  scale_fill_viridis_c(guide = "none") +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "")
-
-
-```
-
-***
-Here, we see a keygram of Basket Case by Green Day. It shows a pattern of the intro being in a different key than the rest of the song. This is not the case however. The song is written in Eb major, which is kind of strange, since the keygram says it is probably Bb min. The cause for this is still a bit cloudy in my eyes.
-
-
-### Looking at the difference in Tempo, Duration and Loudness
-
-``` {r}
-Erameans <- Rock %>%
-  group_by(era) %>%
-  summarise(mtemp = mean(tempo))
-
-Rock %>%
-  mutate(
-    sections =
-      map(
-        sections,                                    # sections or segments
-        summarise_at,
-        vars(tempo, loudness, duration),             # features of interest
-        list(section_mean = mean, section_sd = sd)   # aggregation functions
-      )
-  ) %>%
-  unnest(sections) %>%
+Crying %>%
+  compmus_gather_timbre() %>%
   ggplot(
     aes(
-      x = tempo,
-      y = tempo_section_sd,
-      colour = era,
-      alpha = loudness
+      x = start + duration / 2,
+      width = duration,
+      y = basis,
+      fill = value
     )
   ) +
-  geom_point(aes(size = duration / 60)) +
-  geom_segment(aes(x = Erameans$mtemp[1], xend = Erameans$mtemp[1], y = 0, yend = 7, alpha = 0.2), color = "red") +
-  geom_segment(aes(x = Erameans$mtemp[2], xend = Erameans$mtemp[2], y = 0, yend = 7, alpha = 0.2), color = "green") +
-  geom_segment(aes(x = Erameans$mtemp[3], xend = Erameans$mtemp[3], y = 0, yend = 7, alpha = 0.2), color = "blue") +
-  annotate(geom="text", x=150, y=6.5, label="<- Mean Tempo") +
-  geom_rug() +
-  theme_minimal() +
-  ylim(0, 7) +
-  labs(
-    x = "Mean Tempo (bpm)",
-    y = "SD Tempo",
-    colour = "Genre",
-    size = "Duration (min)",
-    alpha = "Volume (dBFS)"
-  ) 
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  scale_fill_viridis_c() +                              
+  theme_classic()
+```
+
+``` {r}
+Crying %>%
+  compmus_self_similarity(pitches, "cosine") %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
 ```
 
 ***
-There is a lot to discover in this plot so let's start from the beginning. For the plot the limit on the y-axis has been set to 7, which cuts off 14 songs that have a much higher Standard Deviation (SD) that the other songs.
-First of all, one can see the very distinct tempo means. The means of the Rock Classics and the Rock Subgenres are close to eachother, while the mean tempo of Rock 'n Roll is higher than the other era's. This could very well be because of the fact that Rock Classics and Rock Subgenres have more styles of rock than Rock 'n Roll.
-
-Next to that, one can see that the overall duration and loudness of the Rock 'n Roll era seems to be lower than the other era's. There are some songs withing te Rock Subgenres era that show similar features, but not as much as the Rock 'n Roll era.
-
-ONE QUESTION HERE:
-I have the problem that the stats of the plot are shown on the left, I am aware that this hinders the visibility of the plot. Does anyone know how to get rid of it?
-Next to that, if you see anything interesting in the plot, Please let me know :)
+In the two plots below, the biggest outlier of the corpus is represented with a cepstogram and a self similarity matrix (SSM) regarding pitches. The song is "Crying" by Roy Orbison. What can be extracted from both plots is that the song has a strong ending of some sort. In the cepstogram one sees a short rise in magnitude of the c02 vector, which means a certain aspect of the timbre is extra apparent at that moment. This is also seen within the SSM as two vertical and two horizontal lines, this means that near the end there is a bigger difference regarding the other parts of the song. When listening to the song, it becomes clear what this change is. Throughout the song, Orbison sings a sad song. However, in the end the singer reaches out for a strong high note. This is what causes the sudden change within the two plots.
 
 
-
-### Introduction to my research on the evolution of Rock music
-Course portfolio for Computational Musicology
-
-For this portfolio, I will be looking at the evolution of the Rock genre. Specifically, from Rock 'n Roll into Rock music and eventually into more alternative Rock subgenres,
- like Grunge, Metal and alt Rock. For the Rock 'n Roll songs, the Spotify playlist "50's and 60's Rock n Roll" playlist has been chosen to process. There are 74 songs within 
- the playlist and includes classic Rock 'n Roll artists, like Elvis Presley, Chuck Berry, Little Richard and much more. The playlist for the Rock music will be the Rock Classics 
- playlist from Spotify itself. This playlist includes 145 songs of classic Rock songs and is very likely to be suited for this era of Rock music, because it contains a lot of 
- different styles of Rock within that era. Finally, for the alternative Rock subgenres a playlist named "90s Grunge/Rock/Punk-pop" is used in combination with the "Old school
- Metal" playlist with a total of 293 songs in both playlists. The playlists are used together, because the "90s Grunge/Rock/Punk-pop" playlist contains a lot of subgenres but 
- doesn't contain a lot of Metal, which was definitely apparent in this era of Rock music. 
-
- The decision to look at the evolution of Rock music came to me, because of my obsession with why people seem to know these classical Rock songs no matter the age of 
- the person. Classic Rock music seems to be something almost everyone can enjoy, albeit not all the subgenres. Within the alternative Rock category, there are bands like 
- The Offspring and Green Day, which are well known for their heavier "Punk" style Rock. Take for example "Basket Case" from Green Day, which has more than half a billion
- streams. This is not even accounting for the amount of times the song is listened to in any other way. Next to this Punk style, the genre still contains bands like U2 as well. 
- The style of U2 is completely different, but rooted from the same type of music. Rock.
-
- All in all, I expect the loudness of Rock music in it's evolution to rise, this because of the fact that in later stages, the guitars became more distorted. Next to that, I expect 
- that the valence, which measures the positivity of a song, will be lower in the alternative Rock category because of the fact that the songs are written in less of a "swing"
- than the early Rock 'n Roll days.
-
+ Appendix {.storyboard}
+======================
 ### Analyzing the energy and mood of 50s, 60s Rock 'n Roll days. 
 
 ```{r echo=FALSE, message=FALSE}
@@ -553,168 +659,3 @@ ggplotly(subgplot)
 
 ***
 Here comes the explanation again!!!! (Just not yet)
-
-
-### Comparing all the different times in one big Rockplot
-
-
-``` {r}
-fullplot <- Rock %>%
-  mutate(
-    mode = ifelse(mode == 0, "Minor", "Major")
-  ) %>%
-ggplot(
-  aes(
-    x = valence,
-    y = danceability,
-    color = mode,
-    size = energy,
-    label = track.name
-    )
-  ) +
-  geom_point(alpha=0.4) +
-  scale_y_continuous(limits = c(0, 1)) +
-  scale_x_continuous(limits = c(0, 1)) +
-  facet_wrap(~era) +
-  theme(
-    legend.position = "bottom"
-  )
-
-ggplotly(fullplot)
-
-```
-
-*** 
-A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly.
-
-Next to these findings, it is also apparent in the plots that in the Rock 'n Roll period, the overall energy was lower than the energy of later tracks. This can be noted by the fact that the left plot seems less crowded. This effect is however magnified by the fact that the Rock 'n Roll playlist had less songs than the other plots.
-
-### The saddest Rock 'n Roll track in the corpus
-
-#### Cepstogram
-
-``` {r}
-Crying <-
-  get_tidy_audio_analysis("6eLL7QTdMWdhhG4i3jHDR9") %>% # Change URI.
-  compmus_align(bars, segments) %>%                     # Change `bars`
-  select(bars) %>%                                      #   in all three
-  unnest(bars) %>%                                      #   of these lines.
-  mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  ) %>%
-  mutate(
-    timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"              # Change summary & norm.
-      )
-  )
-
-Crying %>%
-  compmus_gather_timbre() %>%
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = basis,
-      fill = value
-    )
-  ) +
-  geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  scale_fill_viridis_c() +                              
-  theme_classic()
-```
-
-#### Self Similarity Matrix
-
-``` {r}
-Crying %>%
-  compmus_self_similarity(pitches, "cosine") %>% 
-  ggplot(
-    aes(
-      x = xstart + xduration / 2,
-      width = xduration,
-      y = ystart + yduration / 2,
-      height = yduration,
-      fill = d
-    )
-  ) +
-  geom_tile() +
-  coord_fixed() +
-  scale_fill_viridis_c(guide = "none") +
-  theme_classic() +
-  labs(x = "", y = "")
-```
-
-***
-In the two plots below, the biggest outlier of the corpus is represented with a cepstogram and a self similarity matrix (SSM) regarding pitches. The song is "Crying" by Roy Orbison. What can be extracted from both plots is that the song has a strong ending of some sort. In the cepstogram one sees a short rise in magnitude of the c02 vector, which means a certain aspect of the timbre is extra apparent at that moment. This is also seen within the SSM as two vertical and two horizontal lines, this means that near the end there is a bigger difference regarding the other parts of the song. When listening to the song, it becomes clear what this change is. Throughout the song, Orbison sings a sad song. However, in the end the singer reaches out for a strong high note. This is what causes the sudden change within the two plots.
-
-
-``` {r}
-ComeFly <-
-  get_tidy_audio_analysis("4hHbeIIKO5Y5uLyIEbY9Gn") %>%
-  select(segments) %>%
-  unnest(segments)
-```
-
-```{r}
-ComeFly %>%
-  mutate(loudness_max_time = start + loudness_max_time) %>%
-  arrange(loudness_max_time) %>%
-  mutate(delta_loudness = loudness_max - lag(loudness_max)) %>%
-  ggplot(aes(x = loudness_max_time, y = pmax(0, delta_loudness))) +
-  geom_line() +
-  xlim(0, 30) +
-  theme_minimal() +
-  labs(x = "Time (s)", y = "Novelty")
-```
-
-```{r}
-ComeFly %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  arrange(start) %>%
-  mutate(pitches = map2(pitches, lag(pitches), `-`)) %>%
-  slice(-1) %>%
-  compmus_gather_chroma() %>%
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = pitch_class,
-      fill = pmax(0, value)
-    )
-  ) +
-  geom_tile() +
-  scale_fill_viridis_c(guide = "none") +
-  xlim(0, 30) +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  theme_classic()
-```
-
-```{r}
-ComeFly %>%
-  arrange(start) %>%
-  mutate(timbre = map2(timbre, lag(timbre), `-`)) %>%
-  slice(-1) %>%
-  compmus_gather_timbre() %>%
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = basis,
-      fill = pmax(0, value)
-    )
-  ) +
-  geom_tile() +
-  scale_fill_viridis_c(guide = "none") +
-  xlim(0, 30) +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  theme_classic()
-```
-
-
