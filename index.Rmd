@@ -5,6 +5,7 @@ date: "10-2-2021"
 output: 
   flexdashboard::flex_dashboard:
     storyboard: true
+    theme: simplex
 ---
 
 ``` {r echo=FALSE, message=FALSE, results=FALSE, warnings=FALSE}
@@ -58,7 +59,52 @@ RockMeans <- bind_rows(
 ```
 Welcome to the Rock evolution
 ==================
-Course portfolio for Computational Musicology
+## Welcome!
+```{r}
+neckdf <- data.frame(
+  xcoord = append(seq(1, 50),seq(0.5, 45)),
+  ycoord = append(seq(1, 50), seq(0.5, 45)),
+  s = append(append(rep(20, each=45), c(50, 40, 30, 20, 20)), rep(10, each=45))
+)
+
+bodydf <- data.frame(
+  xcoord = append(append(append(append(append(append(seq(1, 20), seq(-1, 15)),
+                  seq(-3, 12)),
+                  seq(-5, 8)),
+                  seq(-7, 4)),
+                  seq(-9, 0)),
+                  seq(-11, -4)
+  ),
+  ycoord = append(append(append(append(append(append(seq(1, 20), seq(1, 17)),
+                  seq(1, 16)),
+                  seq(1, 14)),
+                  seq(1, 12)),
+                  seq(1, 10)),
+                  seq(1, 8)
+  )
+)
+invbodydf <- data.frame(
+  xcoord = bodydf$ycoord,
+  ycoord = bodydf$xcoord
+)
+
+guitardf <- bind_rows(
+  neckdf %>% mutate(parts = "Neck", color = "brown"),
+  bodydf %>% mutate(parts = "Body", s = 50, color = "black"),
+  invbodydf %>% mutate(parts = "Body", s = 50, color = "white")
+)
+
+ggplot(guitardf, aes(x = xcoord, y = ycoord, size = s, alpha = 0.75)) +
+  geom_point() +
+  theme_minimal() +
+  theme(
+    axis.title = element_blank(),
+    legend.position = "none"
+    
+  )
+```
+
+## Course portfolio for Computational Musicology
 
 For this portfolio, I will be looking at the evolution of the Rock genre. Specifically, from Rock 'n Roll into Rock music and eventually into more alternative Rock subgenres,
  like Grunge, Metal and alt Rock. For the Rock 'n Roll songs, the Spotify playlist "50's and 60's Rock n Roll" playlist has been chosen to process. There are 74 songs within 
@@ -68,6 +114,7 @@ For this portfolio, I will be looking at the evolution of the Rock genre. Specif
  Metal" playlist with a total of 293 songs in both playlists. The playlists are used together, because the "90s Grunge/Rock/Punk-pop" playlist contains a lot of subgenres but 
  doesn't contain a lot of Metal, which was definitely apparent in this era of Rock music. 
 
+## Why Rock
  The decision to look at the evolution of Rock music came to me, because of my obsession with why people seem to know these classical Rock songs no matter the age of 
  the person. Classic Rock music seems to be something almost everyone can enjoy, albeit not all the subgenres. Within the alternative Rock category, there are bands like 
  The Offspring and Green Day, which are well known for their heavier "Punk" style Rock. Take for example "Basket Case" from Green Day, which has more than half a billion
@@ -201,6 +248,29 @@ Clearly, Spotify is not that confident about their tempo assessment. This could 
 
 
 
+
+### The era of Rock Classics, where 120 bpm was king
+```{r}
+RockNRoll <- get_playlist_audio_features("thesoundofspotify", "2ii0K7mNdB89XgcOCUM64t")  %>%
+ slice(1:70)
+RockClassics <- get_playlist_audio_features("thesoundofspotify", "37i9dQZF1DWXRqgorJj26U") %>%
+ slice(1:70)
+RockSubGenres <- get_playlist_audio_features("thesoundofspotify", "5dZcUWhn9DP8oOWVQVYLq4") %>%
+ slice(1:70)
+
+Rocktemp <- bind_rows(
+ RockNRoll %>% mutate(era = "Rock 'n Roll (50s, 60s)"),
+ RockClassics %>% mutate(era = "Rock Classics (70s, 80s)"),
+ RockSubGenres %>% mutate(era = "Rock Subgenres (90s, 00s)")
+)
+
+
+Rocktemp %>%
+ mutate(era = factor(era)) %>%
+ ggplot(aes(x = tempo)) +
+ geom_histogram(bins = 15) +
+ facet_grid(~era)
+```
 
 ### Checking out the keygrams in the different era's
 
