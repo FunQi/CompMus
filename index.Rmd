@@ -59,7 +59,8 @@ RockMeans <- bind_rows(
 ```
 Welcome to the Rock evolution
 ==================
-## Welcome!
+Column {data-width=400}
+-------------------------------------
 ```{r}
 neckdf <- data.frame(
   xcoord = append(seq(1, 50),seq(0.5, 45)),
@@ -96,25 +97,27 @@ guitardf <- bind_rows(
 
 ggplot(guitardf, aes(x = xcoord, y = ycoord, size = s, alpha = 0.75)) +
   geom_point() +
+  ggtitle("Enjoy this guitarplot") +
   theme_minimal() +
   theme(
-    axis.title = element_blank(),
     legend.position = "none"
-    
   )
 ```
 
-## Course portfolio for Computational Musicology
+
+
+Column {data-width=600}
+-------------------------------------
+### Course portfolio for Computational Musicology
 
 For this portfolio, I will be looking at the evolution of the Rock genre. Specifically, from Rock 'n Roll into Rock music and eventually into more alternative Rock subgenres,
  like Grunge, Metal and alt Rock. For the Rock 'n Roll songs, the Spotify playlist "50's and 60's Rock n Roll" playlist has been chosen to process. There are 74 songs within 
  the playlist and includes classic Rock 'n Roll artists, like Elvis Presley, Chuck Berry, Little Richard and much more. The playlist for the Rock music will be the Rock Classics 
  playlist from Spotify itself. This playlist includes 145 songs of classic Rock songs and is very likely to be suited for this era of Rock music, because it contains a lot of 
- different styles of Rock within that era. Finally, for the alternative Rock subgenres a playlist named "90s Grunge/Rock/Punk-pop" is used in combination with the "Old school
- Metal" playlist with a total of 293 songs in both playlists. The playlists are used together, because the "90s Grunge/Rock/Punk-pop" playlist contains a lot of subgenres but 
- doesn't contain a lot of Metal, which was definitely apparent in this era of Rock music. 
+ different styles of Rock within that era. Finally, for the alternative Rock subgenres a playlist named "90s Grunge/Rock/Punk-pop" is used with a total of 153 songs in the playlist. 
+To even out the amount of songs used, this research will use 70 of the playlists songs in order to make sure we have the same amount of data throughout the era's of Rock music.
 
-## Why Rock
+### Why Rock
  The decision to look at the evolution of Rock music came to me, because of my obsession with why people seem to know these classical Rock songs no matter the age of 
  the person. Classic Rock music seems to be something almost everyone can enjoy, albeit not all the subgenres. Within the alternative Rock category, there are bands like 
  The Offspring and Green Day, which are well known for their heavier "Punk" style Rock. Take for example "Basket Case" from Green Day, which has more than half a billion
@@ -147,19 +150,20 @@ ggplot(
   geom_point(alpha=0.4) +
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(limits = c(0, 1)) +
-  facet_wrap(~era) +
-  theme(
-    legend.position = "bottom"
-  )
+  facet_wrap(~era)
 
 ggplotly(fullplot)
 
 ```
 
 *** 
-A very interesting fact that can be concluded from the plots above is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly.
+Here we see three plots. In these plots the different era's are shown with valence on the x-axis (This means how "happy" the song sounds), the danceability on the y-axis and the size depicts the energy of the song. Then only the color is left, which depicts whether the song is in a major or minor key.
+
+A very interesting fact that can be concluded from the plots on the left is that it is apparent that the Rock genre got a lot more diverse as time went on. In the plot of Rock 'n Roll, note that the average danceability and valence are very high. In the period following directly after, the Rock Classics, the valence is a lot more spread out than it was before. The period after this, The Rock Subgenres, it is seen that the average danceability has gone down significantly.
 
 Next to these findings, it is also apparent in the plots that in the Rock 'n Roll period, the overall energy was lower than the energy of later tracks. This can be noted by the fact that the left plot seems less crowded. This effect is however magnified by the fact that the Rock 'n Roll playlist had less songs than the other plots.
+
+In the Appendix tab, you can find the plots on their own to increase the readibility of the plots in comparison to the three plots next to each other.
 
 
 
@@ -196,7 +200,7 @@ Rock %>%
   geom_segment(aes(x = Erameans$mtemp[1], xend = Erameans$mtemp[1], y = 0, yend = 7, alpha = 0.2), color = "red") +
   geom_segment(aes(x = Erameans$mtemp[2], xend = Erameans$mtemp[2], y = 0, yend = 7, alpha = 0.2), color = "green") +
   geom_segment(aes(x = Erameans$mtemp[3], xend = Erameans$mtemp[3], y = 0, yend = 7, alpha = 0.2), color = "blue") +
-  annotate(geom="text", x=150, y=6.5, label="<- Mean Tempo") +
+  annotate(geom="text", x=150, y=6.5, label="<- Mean Tempi") +
   geom_rug() +
   theme_minimal() +
   ylim(0, 7) +
@@ -211,42 +215,9 @@ Rock %>%
 
 ***
 There is a lot to discover in this plot so let's start from the beginning. For the plot the limit on the y-axis has been set to 7, which cuts off 14 songs that have a much higher Standard Deviation (SD) that the other songs.
-First of all, one can see the very distinct tempo means. The means of the Rock Classics and the Rock Subgenres are close to eachother, while the mean tempo of Rock 'n Roll is higher than the other era's. This could very well be because of the fact that Rock Classics and Rock Subgenres have more styles of rock than Rock 'n Roll.
+First of all, one can see the very distinct tempo means, each color corresponds with the color of the era. The means of the Rock Classics and the Rock Subgenres are close to eachother, while the mean tempo of Rock 'n Roll is higher than the other era's. This could very well be because of the fact that Rock Classics and Rock Subgenres have more styles of rock than Rock 'n Roll.
 
-Next to that, one can see that the overall duration and loudness of the Rock 'n Roll era seems to be lower than the other era's. There are some songs withing te Rock Subgenres era that show similar features, but not as much as the Rock 'n Roll era.
-
-ONE QUESTION HERE:
-I have the problem that the stats of the plot are shown on the left, I am aware that this hinders the visibility of the plot. Does anyone know how to get rid of it?
-Next to that, if you see anything interesting in the plot, Please let me know :)
-
-
- 
-### Come Fly With Me, Spotify's tempo enigma performed by Sinatra
-
-```{r}
-Fly <- get_tidy_audio_analysis("4hHbeIIKO5Y5uLyIEbY9Gn")
-```
-
-```{r}
-Fly %>%
-  tempogram(window_size = 2, hop_size = 4, cyclic = FALSE) %>%
-  ggplot(aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-```
-
-***
-In this plot, we see the tempogram of the song "Come fly with me - remastered" by Frank Sinatra. This is one of the outliers in the tempo plot, which was seen before. The plot shows that Spotify clearly has a real hard time finding the right tempo of the song. In the tibble below, the tempo and the confidence Spotify has about that tempo. grouped by the different sections of the song.
-```{r}
-Fly[[12]][[1]] %>%
-  select(tempo, tempo_confidence)
-```
-
-Clearly, Spotify is not that confident about their tempo assessment. This could be because of the fact that it sounds like live music with little guidance from percussive elements. Also, this could be the reason for the fact that it is an outlier within the standard deviation of the tempo.
-
-
+Next to that, one can see that the overall size and opacity of the Rock 'n Roll era seems to be lower than the other era's, this means that the duration and loudness of the era is mostly lower than other era's. There are some songs within the Rock Subgenres era that show similar features, but not as much as the Rock 'n Roll era.
 
 
 ### The era of Rock Classics, where 120 bpm was king
@@ -272,7 +243,13 @@ Rocktemp %>%
  facet_grid(~era)
 ```
 
-### Checking out the keygrams in the different era's
+
+***
+In this plot, the era's are plotted using histograms to visualize the distribution of tempi used in the era. As can be seen, the Rock 'n Roll and the Rock Subgenres era are both pretty even in their distributions. The Rock Classics era however, shows a big spike around 120 bpm. This shows a very big preference, in the era of Queen, a king was needed and the musicians chose 120 bpm to be it.
+
+The explanation for the lack of a peak in the Rock 'n Roll era could be that the era was diverse within how the song was set up. A Rock 'n Roll song could be high in tempo and high in "swing", whereas another song could be very slow in tempo because it was more of a blues-y song. For the Subgenres era, the same explanation can be used. Some subgenres are mainly high in tempo, where others are mainly low in tempo. The Classics era has somewhat a similar pattern. However, it seems that a lot of remembered music was around 120 bpm, which is not coincidentally a tempo humans seem to be very fond of.
+
+### In what key is Green Day's Basket Case?
 
 ``` {r}
 circshift <- function(v, n) {
@@ -558,14 +535,14 @@ rock_features %>%
   labs(
     x = "Timbre Component 2",
     y = "Duration",
-    size = "Energy",
-    colour = "Playlist"
+    size = "Acousticness",
+    colour = "Era"
   )
 ```
 
 
 
-Here you can see four plots that explain a k-nearest-neighbor classifier algorithm that was trained on 20 songs of every era. Firstly I would like to direct your attention to the barplot showing the importance of certain aspects of the song. Three stand out very distinctly, which are acousticness, duration and c06. Acousticness is the likelihood of the song being acoustic, duration is the actual duration of the song and c06 is an aspect of the timbre. 
+Here you can see three plots that explain a k-nearest-neighbor classifier algorithm that was trained on 20 songs of every era. Firstly I would like to direct your attention to the barplot showing the importance of certain aspects of the song. Three stand out very distinctly, which are acousticness, duration and c06. Acousticness is the likelihood of the song being acoustic, duration is the actual duration of the song and c06 is an aspect of the timbre. 
 
 These three are used in the scatterplot to visualize whether these do actually group the songs that the classifier was trained on. As can be seen in the plot, there are general areas where the era's group up. It seems that a big difference between the Rock subgenres and Rock 'n Roll arises in acousticness. Then the Rock classics seem to have a longer duration than both the other era's.
 
@@ -611,9 +588,8 @@ Crying %>%
   labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
   scale_fill_viridis_c() +                              
   theme_classic()
-```
 
-``` {r}
+
 Crying %>%
   compmus_self_similarity(pitches, "cosine") %>% 
   ggplot(
@@ -666,8 +642,7 @@ ggplot(
 ggplotly(rollplot)
 ```
 
-***
-For these visualizations, I used the Spotify playlists as specified before in the introduction. Here we hope to see some of the hypotheses that have been stated earlier.
+
 
 
 
@@ -727,5 +702,4 @@ ggplot(
 ggplotly(subgplot)
 ```
 
-***
-Here comes the explanation again!!!! (Just not yet)
+
