@@ -374,7 +374,7 @@ basket_case %>%
 ```
 
 ***
-Here, we see a keygram of Basket Case by Green Day. It shows a pattern of the intro being in a different key than the rest of the song. This is not the case however. The song is written in Eb major, which is kind of strange, since the keygram says it is probably Bb min. The cause for this is still a bit cloudy in my eyes.
+Here, we see a keygram of Basket Case by Green Day. One of the most listened to songs of the Rock Subgenres era. This song is very straight forward regarding the key of the song. However, this keygram does something interesting in the beginning of the song. There, it seems to think that the song is in another key, which is indicated by the dark blue line, and afterwards it switches to the right key (Eb major). This might have to do with the way the song starts. With only vocals and minimal chords. This makes it harder for the algorithm to deduct the key of the song. When the song starts, the algorithm finds the right key in which it stays throughout most of the song. At the end, the song fades out, in which the keygram has no idea anymore on what key the song is in.
 
 
 ### Classifying songs from different Rock era's (NEW)
@@ -538,6 +538,8 @@ rock_features %>%
     size = "Acousticness",
     colour = "Era"
   )
+
+
 ```
 
 
@@ -614,7 +616,7 @@ In the two plots below, the biggest outlier of the corpus is represented with a 
 
  Appendix {.storyboard}
 ======================
-### Analyzing the energy and mood of 50s, 60s Rock 'n Roll days. 
+### Rock 'n Roll (50s, 60s)
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -673,8 +675,6 @@ ggplot(
 ggplotly(classicplot)
 ```
 
-***
-Here I will explain what is seen in the plot :)
 
 ### Rock Subgenres (90s, 00s)
 
